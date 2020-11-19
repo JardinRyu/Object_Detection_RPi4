@@ -14,12 +14,7 @@ CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
 
     
-if __name__ == '__main__':
-  labels = load_labels(args.labels)
-  interpreter = Interpreter(args.model)
-  interpreter.allocate_tensors()
-  _, input_height, input_width, _ = interpreter.get_input_details()[0]['shape']
-  
+if __name__ == '__main__':  
   fourcc = cv2.VideoWriter_fourcc(*'XVID')
   record_org = False
   record = False

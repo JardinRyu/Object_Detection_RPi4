@@ -24,6 +24,7 @@ import io
 import re
 import time
 import requests
+import datetime
 
 import numpy as np
 import cv2
@@ -38,6 +39,10 @@ args = parser.parse_args()
 
 CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+record_org = False
+record = False
 
 def load_labels(path):
   """Loads the labels file. Supports files with or without index numbers."""
@@ -130,7 +135,8 @@ def main():
   cnt=0
 
   while True:
-    ret, frame = capture.read()
+    ret, image = capture.read()
+    frame =  cv2.resize(image, (0, 0), fx=1, fy=1)
     frame_re = cv2.resize(frame, dsize=(input_width, input_height))
     starttime = time.time()
     results = detect_objects(interpreter, frame_re, args.threshold)
@@ -145,8 +151,40 @@ def main():
 
     cv2.imshow("res", frame)
 
-    if cv2.waitKey(1) == ord('q'):
+    now = datetime.datetime.now().strftime("%d_%H-%M-%S")
+    k = cv2.waitKey(1) & 0xff
+
+    #Stop
+    if k == ord('q') or k == 27:
       break
+    #Capture (Original)
+    elif k == ord('c'):
+        print('Capture (Original)')
+        cv2.imwrite("./" + now + ".png", image)
+    #Capture (Detection)
+    elif k == ord('C'):
+        print('Capture (Detection)')
+        cv2.imwrite("./" + now + ".png", frame)
+    #Start Record (Original)
+    elif k == ord('r'):
+        print("Start Record (Original)")
+        record_org = True
+        video = cv2.VideoWriter("./" + now + ".avi", fourcc, 20.0, (image.shape[1], image.shape[0]))
+    #Start Record (Detection)
+    elif k == ord('R'):
+        print("Start Record (Detection)")
+        record = True
+        video = cv2.VideoWriter("./" + now + ".avi", fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+    #Stop Record
+    elif k == ord('s'):
+        print("Stop Record")
+        record_org = False
+        record = False
+        
+    if record_org == True:            
+        video.write(image)
+    if record == True:            
+        video.write(frame)
 
   capture.release()
   cv2.destroyAllWindows()

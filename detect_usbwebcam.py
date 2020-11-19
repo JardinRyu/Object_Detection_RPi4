@@ -40,10 +40,6 @@ args = parser.parse_args()
 CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
 
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-record_org = False
-record = False
-
 def load_labels(path):
   """Loads the labels file. Supports files with or without index numbers."""
   with open(path, 'r', encoding='utf-8') as f:
@@ -121,6 +117,10 @@ def main():
   interpreter = Interpreter(args.model)
   interpreter.allocate_tensors()
   _, input_height, input_width, _ = interpreter.get_input_details()[0]['shape']
+  
+  fourcc = cv2.VideoWriter_fourcc(*'XVID')
+  record_org = False
+  record = False
   
   capture = cv2.VideoCapture(0)
 
